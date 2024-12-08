@@ -1,0 +1,8 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+Game,org.progtech.db,DBConnection,8,25,0,0,3,9,0,2,0,2
+Game,org.progtech.db,DBManager,37,109,2,4,13,39,2,5,0,4
+Game,org.progtech.setting,Connect4Game,264,338,34,52,62,37,25,32,4,10
+Game,org.progtech.player,ComputerPlayer,0,24,1,1,0,6,1,2,0,2
+Game,org.progtech.player,HumanPlayer,15,4,0,0,3,2,1,1,1,1
+Game,org.progtech.player,Player,0,9,0,0,0,4,0,2,0,2
+Game,org.progtech,Main,10,0,0,0,4,0,2,0,2,0

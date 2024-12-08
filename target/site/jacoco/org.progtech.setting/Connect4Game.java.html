@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Connect4Game.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Game</a> &gt; <a href="index.source.html" class="el_package">org.progtech.setting</a> &gt; <span class="el_source">Connect4Game.java</span></div><h1>Connect4Game.java</h1><pre class="source lang-java linenums">package org.progtech.setting;
+
+import org.progtech.db.DBManager;
+import org.progtech.player.ComputerPlayer;
+import org.progtech.player.HumanPlayer;
+import org.progtech.player.Player;
+
+import java.util.Scanner;
+
+
+public class Connect4Game {
+    private static final int ROWS = 6;
+    private static final int COLUMNS = 7;
+    private static final char EMPTY = '.';
+    private static final char PLAYER_SYMBOL = 'Y';
+    private static final char COMPUTER_SYMBOL = 'R';
+    private char[][] board;
+    private Player humanPlayer;
+    private Player computerPlayer;
+    private boolean playerTurn;
+    private String playerName;
+    public DBManager dbManager;
+
+<span class="fc" id="L24">    public Connect4Game() {</span>
+<span class="fc" id="L25">        board = new char[ROWS][COLUMNS];</span>
+<span class="fc" id="L26">        dbManager = new DBManager();</span>
+<span class="fc" id="L27">        initializeBoard();</span>
+<span class="fc" id="L28">    }</span>
+
+    public void mainMenu() {
+<span class="nc" id="L31">        System.out.println(&quot;Entering Main Menu...&quot;);</span>
+<span class="nc" id="L32">        Scanner scanner = new Scanner(System.in);</span>
+
+        while (true) {
+<span class="nc" id="L35">            System.out.println(&quot;=== Connect 4 ===&quot;);</span>
+<span class="nc" id="L36">            System.out.println(&quot;1. Show Top Winners&quot;);</span>
+<span class="nc" id="L37">            System.out.println(&quot;2. Start Game&quot;);</span>
+<span class="nc" id="L38">            System.out.println(&quot;Enter your choice (1 or 2): &quot;);</span>
+
+<span class="nc" id="L40">            String choice = scanner.nextLine();</span>
+<span class="nc" id="L41">            System.out.println(&quot;User choice: &quot; + choice); // Debug line</span>
+
+<span class="nc bnc" id="L43" title="All 2 branches missed.">            if (choice.equals(&quot;1&quot;)) {</span>
+<span class="nc" id="L44">                System.out.println(&quot;Showing Top Winners...&quot;); // Debug line</span>
+<span class="nc" id="L45">                showTopWinners();</span>
+<span class="nc bnc" id="L46" title="All 2 branches missed.">            } else if (choice.equals(&quot;2&quot;)) {</span>
+<span class="nc" id="L47">                System.out.println(&quot;Starting the game...&quot;); // Debug line</span>
+<span class="nc" id="L48">                start();</span>
+<span class="nc" id="L49">                break;</span>
+            } else {
+<span class="nc" id="L51">                System.out.println(&quot;Invalid choice. Please enter 1 or 2.&quot;);</span>
+            }
+<span class="nc" id="L53">        }</span>
+<span class="nc" id="L54">    }</span>
+
+    public void showTopWinners() {
+<span class="nc" id="L57">        System.out.println(&quot;=== Top 3 Winners ===&quot;);</span>
+<span class="nc" id="L58">        dbManager.getTopWinners();</span>
+
+<span class="nc" id="L60">        Scanner scanner = new Scanner(System.in);</span>
+<span class="nc" id="L61">        System.out.println(&quot;Press any key to return to the main menu...&quot;);</span>
+<span class="nc" id="L62">        scanner.nextLine();</span>
+<span class="nc" id="L63">    }</span>
+
+    public void start() {
+<span class="nc" id="L66">        askPlayerName();</span>
+<span class="nc" id="L67">        printBoard();</span>
+
+<span class="nc" id="L69">        humanPlayer = new HumanPlayer(PLAYER_SYMBOL);</span>
+<span class="nc" id="L70">        computerPlayer = new ComputerPlayer(COMPUTER_SYMBOL);</span>
+<span class="nc" id="L71">        playerTurn = true;</span>
+
+<span class="nc" id="L73">        boolean gameWon = false;</span>
+
+<span class="nc bnc" id="L75" title="All 2 branches missed.">        while (!gameWon) {</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">            if (playerTurn) {</span>
+<span class="nc" id="L77">                System.out.println(playerName + &quot;'s turn! Enter column (a-g): &quot;);</span>
+<span class="nc" id="L78">                int column = humanPlayer.getMove(board);</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">                if (isValidMove(column)) {</span>
+<span class="nc" id="L80">                    makeMove(column, PLAYER_SYMBOL);</span>
+<span class="nc" id="L81">                    playerTurn = false;</span>
+                } else {
+<span class="nc" id="L83">                    System.out.println(&quot;Invalid move. Try again.&quot;);</span>
+<span class="nc" id="L84">                    continue;</span>
+                }
+<span class="nc" id="L86">            } else {</span>
+<span class="nc" id="L87">                System.out.println(&quot;Computer's turn...&quot;);</span>
+<span class="nc" id="L88">                int column = computerPlayer.getMove(board);</span>
+<span class="nc" id="L89">                System.out.println(&quot;Computer chooses column: &quot; + (char) ('a' + column));</span>
+<span class="nc" id="L90">                makeMove(column, COMPUTER_SYMBOL);</span>
+<span class="nc" id="L91">                playerTurn = true;</span>
+            }
+
+<span class="nc" id="L94">            printBoard();</span>
+<span class="nc" id="L95">            gameWon = checkWin();</span>
+
+<span class="nc bnc" id="L97" title="All 2 branches missed.">            if (gameWon) {</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">                if (playerTurn) {</span>
+<span class="nc" id="L99">                    System.out.println(&quot;Computer won!&quot;);</span>
+                } else {
+<span class="nc" id="L101">                    System.out.println(playerName + &quot; won!&quot;);</span>
+<span class="nc" id="L102">                    dbManager.saveWin(playerName); // Save player's win to the database</span>
+                }
+            }
+        }
+<span class="nc" id="L106">    }</span>
+
+    private void askPlayerName() {
+<span class="nc" id="L109">        Scanner scanner = new Scanner(System.in);</span>
+<span class="nc" id="L110">        System.out.println(&quot;Enter your name: &quot;);</span>
+<span class="nc" id="L111">        playerName = scanner.nextLine();</span>
+<span class="nc" id="L112">    }</span>
+
+    public void initializeBoard() {
+<span class="fc bfc" id="L115" title="All 2 branches covered.">        for (int i = 0; i &lt; ROWS; i++) {</span>
+<span class="fc bfc" id="L116" title="All 2 branches covered.">            for (int j = 0; j &lt; COLUMNS; j++) {</span>
+<span class="fc" id="L117">                board[i][j] = EMPTY;</span>
+            }
+        }
+<span class="fc" id="L120">    }</span>
+
+    public void printBoard() {
+<span class="fc" id="L123">        System.out.println(&quot; a b c d e f g&quot;);</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">        for (int i = 0; i &lt; ROWS; i++) {</span>
+<span class="fc bfc" id="L125" title="All 2 branches covered.">            for (int j = 0; j &lt; COLUMNS; j++) {</span>
+<span class="fc" id="L126">                System.out.print(&quot; &quot; + board[i][j]);</span>
+            }
+<span class="fc" id="L128">            System.out.println();</span>
+        }
+<span class="fc" id="L130">    }</span>
+
+    public boolean isValidMove(int column) {
+<span class="fc bfc" id="L133" title="All 6 branches covered.">        return column &gt;= 0 &amp;&amp; column &lt; COLUMNS &amp;&amp; board[0][column] == EMPTY;</span>
+    }
+
+    public void makeMove(int column, char player) {
+<span class="pc bpc" id="L137" title="1 of 2 branches missed.">        for (int i = ROWS - 1; i &gt;= 0; i--) {</span>
+<span class="fc bfc" id="L138" title="All 2 branches covered.">            if (board[i][column] == EMPTY) {</span>
+<span class="fc" id="L139">                board[i][column] = player;</span>
+<span class="fc" id="L140">                break;</span>
+            }
+        }
+<span class="fc" id="L143">    }</span>
+
+    public boolean checkWin() {
+<span class="pc bpc" id="L146" title="1 of 6 branches missed.">        return checkHorizontalWin() || checkVerticalWin() || checkDiagonalWin();</span>
+    }
+
+    private boolean checkHorizontalWin() {
+<span class="fc bfc" id="L150" title="All 2 branches covered.">        for (int i = 0; i &lt; ROWS; i++) {</span>
+<span class="fc bfc" id="L151" title="All 2 branches covered.">            for (int j = 0; j &lt; COLUMNS - 3; j++) {</span>
+<span class="pc bpc" id="L152" title="2 of 8 branches missed.">                if (board[i][j] != EMPTY &amp;&amp; board[i][j] == board[i][j + 1] &amp;&amp;</span>
+                        board[i][j] == board[i][j + 2] &amp;&amp; board[i][j] == board[i][j + 3]) {
+<span class="fc" id="L154">                    return true;</span>
+                }
+            }
+        }
+<span class="fc" id="L158">        return false;</span>
+    }
+
+    private boolean checkVerticalWin() {
+<span class="fc bfc" id="L162" title="All 2 branches covered.">        for (int j = 0; j &lt; COLUMNS; j++) {</span>
+<span class="fc bfc" id="L163" title="All 2 branches covered.">            for (int i = 0; i &lt; ROWS - 3; i++) {</span>
+<span class="pc bpc" id="L164" title="2 of 8 branches missed.">                if (board[i][j] != EMPTY &amp;&amp; board[i][j] == board[i + 1][j] &amp;&amp;</span>
+                        board[i][j] == board[i + 2][j] &amp;&amp; board[i][j] == board[i + 3][j]) {
+<span class="fc" id="L166">                    return true;</span>
+                }
+            }
+        }
+<span class="fc" id="L170">        return false;</span>
+    }
+
+    private boolean checkDiagonalWin() {
+<span class="pc bpc" id="L174" title="1 of 2 branches missed.">        for (int i = 3; i &lt; ROWS; i++) {</span>
+<span class="fc bfc" id="L175" title="All 2 branches covered.">            for (int j = 0; j &lt; COLUMNS - 3; j++) {</span>
+<span class="pc bpc" id="L176" title="1 of 8 branches missed.">                if (board[i][j] != EMPTY &amp;&amp; board[i][j] == board[i - 1][j + 1] &amp;&amp;</span>
+                        board[i][j] == board[i - 2][j + 2] &amp;&amp; board[i][j] == board[i - 3][j + 3]) {
+<span class="fc" id="L178">                    return true;</span>
+                }
+            }
+        }
+<span class="nc bnc" id="L182" title="All 2 branches missed.">        for (int i = 0; i &lt; ROWS - 3; i++) {</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">            for (int j = 0; j &lt; COLUMNS - 3; j++) {</span>
+<span class="nc bnc" id="L184" title="All 8 branches missed.">                if (board[i][j] != EMPTY &amp;&amp; board[i][j] == board[i + 1][j + 1] &amp;&amp;</span>
+                        board[i][j] == board[i + 2][j + 2] &amp;&amp; board[i][j] == board[i + 3][j + 3]) {
+<span class="nc" id="L186">                    return true;</span>
+                }
+            }
+        }
+<span class="nc" id="L190">        return false;</span>
+    }
+
+    // Get the current game board
+    public char[][] getBoard() {
+<span class="fc" id="L195">        return board;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>
